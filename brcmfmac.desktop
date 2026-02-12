@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Exec=pkexec modprobe brcmfmac 
+Name=Load Wifi Firmware
+Comment= A workaround to prevent amdgpu from crashing
+Terminal=true
