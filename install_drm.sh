@@ -10,10 +10,8 @@ elif command -v apt >/dev/null 2>&1; then
   PM=apt
 elif command -v dnf >/dev/null 2>&1; then
   PM=dnf
-elif command -v zypper >/dev/null 2>&1; then
-  PM=zypper
 else
-  echo "Unsupported distro"
+  echo "Unsupported T2 Linux distribution"
   exit 1
 fi
 
@@ -24,6 +22,18 @@ case "$PM" in
 pacman)
   pacman -Sy --needed --noconfirm \
     linux-firmware \
+    linux-firmware \
+    linux-firmware-amdgpu \
+    linux-firmware-atheros \
+    linux-firmware-broadcom \
+    linux-firmware-cirrus \
+    linux-firmware-intel \
+    linux-firmware-mediatek \
+    linux-firmware-nvidia \
+    linux-firmware-other \
+    linux-firmware-radeon \
+    linux-firmware-realtek \
+    linux-firmware-whence \
     mesa \
     libdrm \
     vulkan-loader \
@@ -50,14 +60,6 @@ dnf)
     mesa-vulkan-drivers \
     xorg-x11-drv-amdgpu
   ;;
-zypper)
-  zypper install -y \
-    kernel-firmware-amdgpu \
-    Mesa \
-    Mesa-dri \
-    Mesa-libGL1 \
-    Mesa-libEGL1 \
-    Mesa-vulkan-drivers \
-    xf86-video-amdgpu
-  ;;
 esac
+pexec modprobe amdgpu || echo "Loading amdgpu driver failed"
+echo "For best results, reboot."
