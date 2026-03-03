@@ -16,7 +16,7 @@ EOF
 }
 install_drm() {
   chmod +x "$dir/install_drm.sh"
-  pkexec $dir/install_drm.sh
+  pkexec "$dir/install_drm.sh"
 
 }
 insert_nomodeset() {
@@ -46,12 +46,12 @@ case "$1" in
     insert_nomodeset
   fi
   if ! [ -f grub.bak ]; then
-      if read -rp "Backup file not found. You like to install the default? [Y/m]" ans && [[ ${ans:-Y} =~ ^[Yy]] ]]; then
-        sudo cp "$GRUB_FILE.default" /etc/default/grub
-      else
-        echo "Kept current grub config."
-      fi
-   fi
+    if read -rp "Backup file not found. You like to install the default? [Y/m]" ans && [[ ${ans:-Y} =~ ^[Yy]] ]]; then
+      sudo cp "$GRUB_FILE.default" /etc/default/grub
+    else
+      echo "Kept current grub config."
+    fi
+  fi
   ;;
 --help | "")
   show_help
@@ -69,7 +69,11 @@ sudo cp /etc/default/grub "$dir/grub.bak"
 sudo chown "$(whoami)" "$dir/grub.bak"
 #Setting up grub config
 sudo cp -f "$dir/grub" /etc/default/grub
-cp "$dir/brcmfmac.desktop" ~/.config/autostart/
+sudo install -m 0755 load-wifi.sh /usr/local/sbin/loading_wifi
+sudo chown root:root /usr/local/sbin/load_wifi
+sudo cp "$dir/49-enable-brcmfmac.rules" /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
+sudo chown root:root /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
+sudo chmod 0644 /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
 #Updates grub config
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 echo "Setup done!"
