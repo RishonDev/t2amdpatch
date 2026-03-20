@@ -1,49 +1,45 @@
 # t2amdpatch
 
-GRUB Bootloader patches for AMD GPU driver on T2 Linux. Tested on iMac 2020 with Radeon Pro 5300m
+GRUB and driver setup for T2 Linux systems using AMD GPUs. Tested on an iMac 2020 with a Radeon Pro 5300M. Please read before applying the patch. It is currently is pre-release.
 
-If you encounter issues which are not listed here, please post an Issue.
+## Install
 
-**WARNING: READ BEFORE INSTALL!**
-## Steps to install:
-
-1. Download the repository to your Downloads folder
-2. In Terminal, type (or copy and paste):
+Run the installer as root:
 
 ```bash
-cd Downloads
-unzip t2amdpatch-main.zip
-cd t2amdpatch-main
 chmod +x install.sh
 sudo ./install.sh
 ```
-Or if you want stable releases, go to the releases tab and run the install script from there. Use `chmod +x install.sh` if you ever get a `Permission Denied` error.
 
-And you're good to go. If you're not willing to deal with the quirks of the driver, don't apply the patch (more of a workaround). Use `sudo ./install.sh --revert` to revert back if you've already installed it.
+The installer:
 
-If you already have the DRM stack installed or need to avoid reinstalling it, you can run `sudo ./install.sh --skip-firmware`.
+- installs the AMD graphics stack when needed
+- skips that step automatically if the required drivers are already installed
+- installs the Wi-Fi loader and Polkit rule
+- installs the desktop autostart entry
+- updates `/etc/default/grub`
+- regenerates `grub.cfg` automatically
+
+## Options
+
+```bash
+sudo ./install.sh --help
+```
+
+Available options:
+
+- `--revert` re-applies the safer `nomodeset` GRUB setting
+- `--skip-firmware` skips the firmware and DRM driver installation step
+
 WARNING: NOT INSTALLING THE DRM DRIVERS WILL PREVENT THE SYSTEM FROM WORKING. Please be mindful of what you are doing,use if already installed or its causing issues
 
-## Boot sequence (Obsolete)
-~~1. When it boots, hold the option key (⌥). Wait for a few seconds for the firmware to load (Around 2 seconds). Then select the Linux EFI  partition~~
-~~2.  **DO NOT PRESS ENTER, AS THE DRIVER WILL FAIL TO LOAD.** Let GRUB boot on its own. Wait for the 5 second timer 
-and you should be in.~~
+## Notes
 
-**Note: v0.3 or later, the issue has been patched. You can boot normally without the boot sequence**
-## Contribution
+- Normal boot behavior is expected on current versions; the old manual boot timing workaround is obsolete.
+- Cold boot failures can still happen on some systems.
+- Incorrect setup can still cause AMD GPU crashes. If that happens, power the machine off and try again. Do not force shutdown, rather press the power button once.
+- RAM faster than 2666 MHz may prevent the drivers from loading reliably on affected hardware.
 
-Please test and document befoe posting any tweaks.  Put it as a pull request.
+## Contributing
 
-## Known quirks
-a. Cold boot. First boots are most likely to fail.
-
-**Patched on v0.3 or later**
-
-b. RAM Clock mismatch: Installing RAM faster than 2666 Mhz causes the drivers not to load. Unfortunately there's no workaround and you're going to have to use 2666 Mhz RAM anyway, since thats what is supported by the processors of that era. 
-
-**V0.2: Patched on v0.3 or later.**
-
-c. AMD GPU may crash if setup is done improperly. 
-
-**Known workaround: Press the power button once and do the setup again**  
-d. Wifi firmware wont start automatically: This is a known issue and currently in the work in progress.
+Open an issue for problems not covered here, or send a pull request with tested changes.
