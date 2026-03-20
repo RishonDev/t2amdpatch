@@ -1,6 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
-Exec=pkexec modprobe brcmfmac 
+Type=Application
+Exec=pkexec /usr/local/sbin/load_wifi
 Name=Load Wifi Firmware
-Comment= A workaround to prevent amdgpu from crashing
-Terminal=true
+Comment=A workaround to prevent amdgpu from crashing
+Terminal=false
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

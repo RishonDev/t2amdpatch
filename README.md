@@ -15,11 +15,14 @@ cd Downloads
 unzip t2amdpatch-main.zip
 cd t2amdpatch-main
 chmod +x install.sh
-./install.sh
+sudo ./install.sh
 ```
 Or if you want stable releases, go to the releases tab and run the install script from there. Use `chmod +x install.sh` if you ever get a `Permission Denied` error.
 
-And you're good to go. If you're not willing to deal with the quirks of the driver, don't apply the patch (more of a workaround). Use `install.sh --revert` to revert back if you've already installed it.
+And you're good to go. If you're not willing to deal with the quirks of the driver, don't apply the patch (more of a workaround). Use `sudo ./install.sh --revert` to revert back if you've already installed it.
+
+If you already have the DRM stack installed or need to avoid reinstalling it, you can run `sudo ./install.sh --skip-firmware`.
+WARNING: NOT INSTALLING THE DRM DRIVERS WILL PREVENT THE SYSTEM FROM WORKING. Please be mindful of what you are doing,use if already installed or its causing issues
 
 ## Boot sequence
 1. When it boots, hold the option key (⌥). Wait for a few seconds for the firmware to load (Around 2 seconds). Then select the Linux EFI  partition
