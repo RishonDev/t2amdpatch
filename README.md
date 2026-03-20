@@ -24,13 +24,12 @@ And you're good to go. If you're not willing to deal with the quirks of the driv
 If you already have the DRM stack installed or need to avoid reinstalling it, you can run `sudo ./install.sh --skip-firmware`.
 WARNING: NOT INSTALLING THE DRM DRIVERS WILL PREVENT THE SYSTEM FROM WORKING. Please be mindful of what you are doing,use if already installed or its causing issues
 
-## Boot sequence
-1. When it boots, hold the option key (⌥). Wait for a few seconds for the firmware to load (Around 2 seconds). Then select the Linux EFI  partition
+## Boot sequence (Obsolete)
+~~1. When it boots, hold the option key (⌥). Wait for a few seconds for the firmware to load (Around 2 seconds). Then select the Linux EFI  partition~~
+~~2.  **DO NOT PRESS ENTER, AS THE DRIVER WILL FAIL TO LOAD.** Let GRUB boot on its own. Wait for the 5 second timer 
+and you should be in.~~
 
-2.  **DO NOT PRESS ENTER, AS THE DRIVER WILL FAIL TO LOAD.** Let GRUB boot on its own. Wait for the 5 second timer 
-3. And you should be in. 
-
-**Note: On v0.2 or later, It is no longer mandatory to wait for the grub timeout, but it's safer to do so.**
+**Note: v0.3 or later, the issue has been patched. You can boot normally without the boot sequence**
 ## Contribution
 
 Please test and document befoe posting any tweaks.  Put it as a pull request.
@@ -38,10 +37,13 @@ Please test and document befoe posting any tweaks.  Put it as a pull request.
 ## Known quirks
 a. Cold boot. First boots are most likely to fail.
 
-**Known workaround: using rEFInd(nomodeset is safer, but without nomodeset can be used), or using an alternate OS supported by T2** 
+**Patched on v0.3 or later**
 
-V0.2: Significantly reduced on v0.2 or later.
+b. RAM Clock mismatch: Installing RAM faster than 2666 Mhz causes the drivers not to load. Unfortunately there's no workaround and you're going to have to use 2666 Mhz RAM anyway, since thats what is supported by the processors of that era. 
 
-b. AMD GPU may crash if setup is done improperly. 
+**V0.2: Patched on v0.3 or later.**
+
+c. AMD GPU may crash if setup is done improperly. 
 
 **Known workaround: Press the power button once and do the setup again**  
+d. Wifi firmware wont start automatically: This is a known issue and currently in the work in progress.
