@@ -5,6 +5,7 @@ dir=$(cd -- "$(dirname -- "$0")" && pwd)
 GRUB_FILE="$dir/grub"
 GRUB_BACKUP_FILE="$dir/grub.bak"
 SKIP_FIRMWARE=0
+NOMODESET_MODE=off
 STEP_CURRENT=0
 STEP_TOTAL=4
 
@@ -91,12 +92,14 @@ show_help() {
 Usage: $0 [OPTION]
 
 Options:
-  --revert    Insert 'nomodeset' into GRUB_CMDLINE_LINUX if not present
+  --revert    Compatibility alias for --nomodeset on
+  --nomodeset on|off    Enable or disable nomodeset in GRUB
   --skip-firmware    Skip installing DRM firmware and drivers
   --help      Display this help message
 
 The installer regenerates GRUB configuration automatically.
 The firmware step is skipped automatically if the AMD stack is already installed.
+nomodeset is off by default.
 
 $(print_warning)
 EOF
@@ -179,31 +182,41 @@ install_drm() {
   modprobe amdgpu || echo "Loading amdgpu driver failed"
   echo "For best results, reboot."
 }
-insert_nomodeset() {
+set_nomodeset_mode() {
+  local mode=$1
+  local grub_file=$2
+
   # Create variable if missing
-  if ! grep -q '^GRUB_CMDLINE_LINUX=' "$GRUB_FILE"; then
-    echo 'GRUB_CMDLINE_LINUX=""' >>"$GRUB_FILE"
+  if ! grep -q '^GRUB_CMDLINE_LINUX=' "$grub_file"; then
+    echo 'GRUB_CMDLINE_LINUX=""' >>"$grub_file"
   fi
 
-  # Check if already present
-  if grep -q '^GRUB_CMDLINE_LINUX=.*nomodeset' "$GRUB_FILE"; then
-    echo "Direct display driver loading is already off"
-
+  if [[ $mode == on ]]; then
+    if grep -q '^GRUB_CMDLINE_LINUX=.*nomodeset' "$grub_file"; then
+      echo "nomodeset is already enabled"
+    else
+      sed -i \
+        's/^GRUB_CMDLINE_LINUX="\([^"]*\)"/GRUB_CMDLINE_LINUX="\1 nomodeset"/' \
+        "$grub_file"
+      sed -i 's/  */ /g; s/=\" /=\"/; s/ \"$/\"/' "$grub_file"
+      echo "Enabled nomodeset"
+    fi
   else
-    # Insert nomodeset inside quotes
     sed -i \
-      's/^GRUB_CMDLINE_LINUX="\([^"]*\)"/GRUB_CMDLINE_LINUX="\1 nomodeset"/' \
-      "$GRUB_FILE"
-
-    echo "nomodeset added."
+      's/\(^GRUB_CMDLINE_LINUX="[^"]*\) nomodeset\([^"]*"\)$/\1\2/' \
+      "$grub_file"
+    sed -i \
+      's/\(^GRUB_CMDLINE_LINUX="[^"]*\)nomodeset \([^"]*"\)$/\1\2/' \
+      "$grub_file"
+    sed -i \
+      's/\(^GRUB_CMDLINE_LINUX="\)nomodeset\([^"]*"\)$/\1\2/' \
+      "$grub_file"
+    sed -i 's/  */ /g; s/=\" /=\"/; s/ \"$/\"/' "$grub_file"
+    echo "Disabled nomodeset"
   fi
 }
 
 perform_revert() {
-  if confirm "Disable direct amdgpu loading? (Removes most issues on most Macs) [Y/n] "; then
-    insert_nomodeset
-  fi
-
   if [[ ! -f "$GRUB_BACKUP_FILE" ]]; then
     if confirm "Backup file not found. You like to install the default? [Y/n] "; then
       cp "$dir/grub.default" /etc/default/grub
@@ -224,12 +237,27 @@ install_loader_policy() {
   chmod 0644 /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
 }
 
-revert_requested=0
-
 while (($# > 0)); do
   case "$1" in
   --revert)
-    revert_requested=1
+    NOMODESET_MODE=on
+    ;;
+  --nomodeset)
+    if (($# < 2)); then
+      echo "--nomodeset requires 'on' or 'off'"
+      exit 1
+    fi
+    case "$2" in
+    on|off)
+      NOMODESET_MODE=$2
+      ;;
+    *)
+      echo "Invalid value for --nomodeset: $2"
+      echo "Use --nomodeset on or --nomodeset off"
+      exit 1
+      ;;
+    esac
+    shift
     ;;
   --skip-firmware)
     SKIP_FIRMWARE=1
@@ -250,13 +278,10 @@ done
 
 require_root
 
-if ((SKIP_FIRMWARE)); then
-  STEP_TOTAL=3
-else
+if (( ! SKIP_FIRMWARE )); then
   PACKAGE_MANAGER=$(detect_package_manager)
   if drivers_installed "$PACKAGE_MANAGER"; then
     SKIP_FIRMWARE=1
-    STEP_TOTAL=3
     echo "AMD graphics stack already installed. Skipping firmware and DRM userspace installation."
   fi
 fi
@@ -265,9 +290,8 @@ if ((SKIP_FIRMWARE)); then
   STEP_TOTAL=3
 fi
 
-if ((revert_requested)); then
+if [[ $NOMODESET_MODE == on && ! -f "$GRUB_BACKUP_FILE" ]]; then
   perform_revert
-  exit 0
 fi
 
 if (( ! SKIP_FIRMWARE )); then
@@ -282,6 +306,7 @@ echo "blacklist brcmfmac" >/etc/modprobe.d/brcmfmac.conf
 cp /etc/default/grub "$GRUB_BACKUP_FILE"
 #Setting up grub config
 cp -f "$dir/grub" /etc/default/grub
+set_nomodeset_mode "$NOMODESET_MODE" /etc/default/grub
 
 step "Installing Wi-Fi loader and policy"
 install_loader_policy
