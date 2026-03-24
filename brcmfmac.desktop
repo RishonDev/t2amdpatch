@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Type=Application
-Exec=pkexec /usr/local/sbin/load_wifi
-Name=Load Wifi Firmware
-Comment=A workaround to prevent amdgpu from crashing
-Terminal=false
-X-GNOME-Autostart-enabled=true
-NoDisplay=true

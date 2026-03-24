@@ -44,7 +44,6 @@ confirm() {
 
 step() {
   STEP_CURRENT=$((STEP_CURRENT + 1))
-  echo
   echo "[$STEP_CURRENT/$STEP_TOTAL] $1"
 }
 
@@ -74,7 +73,7 @@ run_with_spinner() {
       status=$?
     fi
     if ((status == 0)); then
-      printf '\r%s\r' "$(printf '%*s' $(( ${#label} + 2 )) '')"
+      printf '\r%s\r' "$(printf '%*s' $((${#label} + 2)) '')"
     else
       echo
       cat "$logfile"
@@ -93,7 +92,7 @@ Usage: $0 [OPTION]
 
 Options:
   --revert    Compatibility alias for --nomodeset on
-  --nomodeset on|off    Enable or disable nomodeset in GRUB
+  --nomodeset on|off    Enable or disable safe graphics in GRUB
   --skip-firmware    Skip installing DRM firmware and drivers
   --help      Display this help message
 
@@ -226,17 +225,6 @@ perform_revert() {
   fi
 }
 
-install_loader_policy() {
-  install -m 0755 "$dir/load_wifi" /usr/local/sbin/load_wifi
-  chown root:root /usr/local/sbin/load_wifi
-  install -d /etc/xdg/autostart
-  install -m 0644 "$dir/brcmfmac.desktop" /etc/xdg/autostart/brcmfmac.desktop
-  chown root:root /etc/xdg/autostart/brcmfmac.desktop
-  cp "$dir/49-enable-brcmfmac.rules" /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
-  chown root:root /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
-  chmod 0644 /etc/polkit-1/rules.d/49-enable-brcmfmac.rules
-}
-
 while (($# > 0)); do
   case "$1" in
   --revert)
@@ -248,7 +236,7 @@ while (($# > 0)); do
       exit 1
     fi
     case "$2" in
-    on|off)
+    on | off)
       NOMODESET_MODE=$2
       ;;
     *)
@@ -278,7 +266,7 @@ done
 
 require_root
 
-if (( ! SKIP_FIRMWARE )); then
+if ((!SKIP_FIRMWARE)); then
   PACKAGE_MANAGER=$(detect_package_manager)
   if drivers_installed "$PACKAGE_MANAGER"; then
     SKIP_FIRMWARE=1
@@ -294,7 +282,7 @@ if [[ $NOMODESET_MODE == on && ! -f "$GRUB_BACKUP_FILE" ]]; then
   perform_revert
 fi
 
-if (( ! SKIP_FIRMWARE )); then
+if ((!SKIP_FIRMWARE)); then
   step "Installing firmware and DRM userspace"
   install_drm
 fi
@@ -307,9 +295,6 @@ cp /etc/default/grub "$GRUB_BACKUP_FILE"
 #Setting up grub config
 cp -f "$dir/grub" /etc/default/grub
 set_nomodeset_mode "$NOMODESET_MODE" /etc/default/grub
-
-step "Installing Wi-Fi loader and policy"
-install_loader_policy
 
 step "Regenerating GRUB configuration"
 #Updates grub config
