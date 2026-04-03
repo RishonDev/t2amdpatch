@@ -1,0 +1,16 @@
+[Unit]
+Description=AMDGPU SMU Failure Watchdog (bind recovery)
+DefaultDependencies=no
+After=systemd-journald.service
+Before=graphical.target multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/amdgpu-bind.sh
+Restart=no
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

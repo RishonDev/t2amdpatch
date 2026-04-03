@@ -1,6 +1,10 @@
 # t2amdpatch
 
-GRUB and driver setup for T2 Linux systems using AMD GPUs. Tested on an iMac 2020 with a Radeon Pro 5300M. Current version: 0.3.
+GRUB and driver setup for T2 Linux systems using AMD GPUs.
+
+Tested on an iMac 2020 with a Radeon Pro 5300M. Current version: 0.4.
+
+Credits: @curtis7551 (Discord)
 
 ## Install
 
@@ -15,8 +19,8 @@ The installer:
 
 - installs the AMD graphics stack when needed
 - skips that step automatically if the required drivers are already installed
-- installs the Wi-Fi loader and Polkit rule
-- installs the desktop autostart entry
+- installs the binder service
+- installs the binder desktop entry
 - updates `/etc/default/grub`
 - regenerates `grub.cfg` automatically
 
@@ -37,8 +41,7 @@ WARNING: NOT INSTALLING THE DRM DRIVERS WILL PREVENT THE SYSTEM FROM WORKING. Pl
 ## Notes
 
 - `nomodeset` is off by default.
-- Normal boot behavior is expected on current versions; the old manual boot timing workaround is obsolete.
-- Cold boot failures can still happen on some systems.
+- Normal boot behavior is expected on the newest versions; the old manual boot timing workaround is obsolete.
 - Incorrect setup can still cause AMD GPU crashes. If that happens, power the machine off and try again. Do not force shutdown, rather press the power button once.
 - RAM faster than 2666 MHz may prevent the drivers from loading reliably on affected hardware.
 
