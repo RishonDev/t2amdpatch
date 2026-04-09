@@ -17,12 +17,11 @@ sudo ./install.sh
 
 The installer:
 
-- installs the AMD graphics stack when needed
-- skips that step automatically if the required drivers are already installed
 - installs the binder service
-- installs the binder desktop entry
 - updates `/etc/default/grub`
 - regenerates `grub.cfg` automatically
+
+For redistribution, the patched `apple-bce` should come from the shipped kernel or package set, not from a local source checkout. This installer only installs the suspend/resume workaround and GRUB settings.
 
 ## Options
 
@@ -42,6 +41,7 @@ WARNING: NOT INSTALLING THE DRM DRIVERS WILL PREVENT THE SYSTEM FROM WORKING. Pl
 
 - `nomodeset` is off by default.
 - Normal boot behavior is expected on the newest versions; the old manual boot timing workaround is obsolete.
+- Suspend reliability still depends on a kernel or module package that contains the required `apple-bce` fixes.
 - Incorrect setup can still cause AMD GPU crashes. If that happens, power the machine off and try again. Do not force shutdown, rather press the power button once.
 - RAM faster than 2666 MHz may prevent the drivers from loading reliably on affected hardware.
 

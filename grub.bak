@@ -5,9 +5,9 @@ GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR="Arch"
 GRUB_CMDLINE_LINUX_DEFAULT=""
 #GRUB_CMDLINE_LINUX="quiet splash intel_iommu=on iommu=pt pcie_ports=compat"
-GRUB_CMDLINE_LINUX="intel_iommu=on iommu=pt pcie_ports=native mem_sleep_default=s2idle pcie_aspm=off"
+GRUB_CMDLINE_LINUX="intel_iommu=on iommu=pt pcie_ports=auto mem_sleep_default=deep pcie_aspm=off pcie_ports=auto"
 # Preload both GPT and MBR modules so that they are not missed
-GRUB_PRELOAD_MODULES="part_gpt part_msdos brcmfmac"
+GRUB_PRELOAD_MODULES="part_gpt part_msdos amdgpu"
 GRUB_DEFAULT=saved
 GRUB_SAVEDEFAULT=true
 
